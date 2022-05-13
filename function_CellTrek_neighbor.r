@@ -1,5 +1,6 @@
 library(igraph)
 library(tripack)
+library(viridis)
 
 
 ################################################
