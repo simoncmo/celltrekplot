@@ -10,7 +10,7 @@ library(tripack)
 # cell_column = 'cell_type_Abbr' # Column for the cell type
 # celltype_plt = c('PT(dual_identity)','PT(S1+S2)','PT(S3)') # remove this value if want to plot All cell types 
 # obj_graph = MakeCellTrekDelaunayGraph(celltrek_obj)
-# GetCellNeighborhoodRatio(obj = celltrek_obj, 
+# MakeCellNeighborhoodRatioPlot(obj = celltrek_obj, 
 #                          obj_graph = obj_graph,
 #                          cell_column  = cell_column, 
 #                          celltype_plt = celltype_plt) 
