@@ -1,5 +1,5 @@
-# CellTrek Plot
-Extra Neighborhood analysis and plotting functions for CellTrek obj
+# CellTrek Neighborhood Analysis
+Neighborhood analysis and plotting functions for CellTrek obj
 
 
 ## Delauney and Neighborhood Percentage
