@@ -17,7 +17,7 @@ MakeCellNeighborhoodRatioPlot(obj = celltrek_obj,
                          plot_type = 'bar',
                          celltype_plt = celltype_plt) 
 ```
-
+![alt text](![image](https://user-images.githubusercontent.com/54045654/168443265-37276938-98ca-4c5c-916d-7ccf92489877.png)
 
 ## Make Delaunay Plot from CellTrek obj
 - `MakeDelaunayPlot` - Make CellTrek ST plot and connnect each dot by edges of Delaunay graph
