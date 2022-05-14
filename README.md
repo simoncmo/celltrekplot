@@ -1,5 +1,6 @@
-# celltrekplot
-plotting functions for CellTrek obj
+# CellTrek Plot
+Extra Neighborhood analysis and plotting functions for CellTrek obj
+
 
 ## Delauney and Neighborhood Percentage
 - `MakeCellTrekDelaunayGraph` - Delany triangulation and make graph using iGraph
