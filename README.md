@@ -1,6 +1,12 @@
 # CellTrek Neighborhood Analysis
 Neighborhood analysis and plotting functions for CellTrek obj
 
+## required package
+```
+library(tripack)
+library(igraph)
+```
+
 ## Make Delaunay Plot from CellTrek obj
 - `MakeDelaunayPlot` - Make CellTrek ST plot and connnect each dot by edges of Delaunay graph
 ```R
