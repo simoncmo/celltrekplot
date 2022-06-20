@@ -211,7 +211,7 @@ PlotDelaunayGraphGG = function(obj, plt_graph, cell_column, palette, cell_plot, 
     edge_df = GetDelaunayEdgeDistanceTable(plt_graph, plt_layout)
 
     # Plot
-    options(repr.plot.width = 10, repr.plot.height = 10)
+    
     ggplot() + 
         geom_segment(data = edge_df, aes(x = x1, y= y1, xend = x2, yend = y2), size = segment_size, color = 'gray60') + 
         geom_point(  data = meta_selected, aes(x = coord_y, y = coord_x, color = .data[[cell_column]]), size = pt_size) + 
@@ -230,8 +230,9 @@ PlotDelaunayGraphGG = function(obj, plt_graph, cell_column, palette, cell_plot, 
 GetDelaunayEdgeDistanceTable = function(graph, layout){
     # Set up X Y Coordinate
     coord_match_df = layout %>% as.data.frame
-    coord_x = coord_match_df$x %>% setNames(seq(1, nrow(coord_match_df)))
-    coord_y = coord_match_df$y %>% setNames(seq(1, nrow(coord_match_df)))
+    coord_x  = coord_match_df$x %>% setNames(seq(1, nrow(coord_match_df)))
+    coord_y  = coord_match_df$y %>% setNames(seq(1, nrow(coord_match_df)))
+    cell_ids = rownames(coord_match_df) %>% setNames(seq(1, nrow(coord_match_df)))
     
     # Get Edge table and x, y 
     edge_df = get.edgelist(graph) %>% 
@@ -240,7 +241,8 @@ GetDelaunayEdgeDistanceTable = function(graph, layout){
         mutate(edge_name = str_c(from_idx, to_idx ,sep='|')) %>% 
         mutate(x1 = coord_x[from_idx], y1 = coord_y[from_idx]) %>% 
         mutate(x2 = coord_x[to_idx], y2 = coord_y[to_idx]) %>% 
-        mutate(distance = sqrt( ( x1 - x2 ) ^ 2 + ( y1 - y2 ) ^ 2 ))
+        mutate(distance = sqrt( ( x1 - x2 ) ^ 2 + ( y1 - y2 ) ^ 2 )) %>% 
+        mutate(cell1 = cell_ids[from_idx], cell2 = cell_ids[to_idx])     # Add Cell ID for To and From as Well
     return(edge_df)
 }
 
