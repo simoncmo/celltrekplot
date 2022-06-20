@@ -1,6 +1,16 @@
 # CellTrek Neighborhood Analysis
 Neighborhood analysis and plotting functions for CellTrek obj
 
+# Change log
+- 6/20/2022
+- function_CellTrek_neighbor_edge.R -> function_CellTrek_Graph_edge.R
+- function_CellTrek_plot.R -> function_CellTrek_Plot_helper.R
+- function_CellTrek_spatial.r -> function_CellTrek_MakePlotObject.R
+- function_CellTrek_neighbor_plot.r a few function seemed redundent. 
+    - merge with function_CellTrek_neighbor_profile.R Need to review and clean
+- function_CellTrek_wrapper.R -> function_CellTrek_coexpression.R
+- Created New folder structure
+
 ## required package
 ```
 library(tripack)
