@@ -1,4 +1,5 @@
 ## HEATMAP
+library(ComplexHeatmap)
 # 6/23/2022
 #### This function take plot obj and sc, then plot heatmap of Neighborhood most variable genes
 #### DEMO #####
