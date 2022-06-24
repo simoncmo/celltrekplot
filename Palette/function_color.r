@@ -1,5 +1,13 @@
-## discrete color
-palettes_discrete_list <- list(alphabet = c("#F0A0FF", "#0075DC", "#993F00", 
+#' Get discrete color using Seurat Discrete color function
+#'
+#' This function Get n discrete color using All palettes from Seurat's package Discrete color function
+#' @param n The number of colors needed.
+#' @return A vector of colors.
+#' @export
+#' @examples
+#' get_discrete_colors(32)
+get_discrete_colors = function(n){
+    palettes_discrete_list <- list(alphabet = c("#F0A0FF", "#0075DC", "#993F00", 
         "#4C005C", "#191919", "#005C31", "#2BCE48", "#FFCC99", 
         "#808080", "#94FFB5", "#8F7C00", "#9DCC00", "#C20088", 
         "#003380", "#FFA405", "#FFA8BB", "#426600", "#FF0010", 
@@ -29,4 +37,6 @@ palettes_discrete_list <- list(alphabet = c("#F0A0FF", "#0075DC", "#993F00",
             "#78B33E", "#A3CC7A", "#CFE6B8", "#0F8299", "#3E9FB3", 
             "#7ABECC", "#B8DEE6", "#3D0F99", "#653EB3", "#967ACC", 
             "#C7B8E6", "#333333", "#666666", "#999999", "#CCCCCC"))
-get_discrete_colors = function(n){palettes_discrete_list %>% unlist %>% unique %>% .[1:n]}
+    # Get color
+    palettes_discrete_list %>% unlist %>% unique %>% .[1:n]
+}

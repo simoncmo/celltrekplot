@@ -107,7 +107,7 @@ GetSpatialPaletteList = function(table_list, palette='', palette_cluster=''){
 MakeDelaunayGraphPlot = function(plot_info_obj, sample_name,
      # Toggle parameters
     show_all_points = F, # Show all point of CellTrek output. Will suppress all parameter other than show_edge below                       
-    show_edge = T, show_background_pts=T, show_neighbor_pts=T, show_target_pts=T,show_cluster_pts=T, 
+    show_edge = T, show_background_pts=T, show_neighbor_pts=T, show_target_pts=T, 
     title_size = 15, segment_size = 0.2, pt_size = 0.7, 
     vertex.size = 1.2, edge.color = "gray80", ...) 
 {

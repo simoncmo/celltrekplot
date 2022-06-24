@@ -16,21 +16,32 @@ library(viridis)
 #                          cell_column  = cell_column, 
 #                          celltype_plt = celltype_plt) 
 ################################################
-# Delany triangulation 
-MakeCellTrekDelaunayGraph = function(obj, trim_graph = T, max_distance= 800){
-    coord_df <- obj@meta.data[,c('coord_x','coord_y')] %>% setNames(c('x','y'))
+#' Make Delaunay Graph object from Celltrek result or Visium ST obj
+#'
+#' This function create Delaunay Graph object from Celltrek result or Visium ST obj
+#' @param obj The CellTrek of ST object
+#' @param trim_graph Whether trim the graph based on maximum distance allow [default = T]
+#' @param max_distance Maximum distance to make a connection/edge [defulat = T]
+#' @param obj_type Specify whether its a CellTrek or Visium ST object, takes either 'CellTrek','ST' [default = 'CellTrek']
+#' @return A igraph obj
+#' @export
+#' @examples
+#' MakeCellTrekDelaunayGraph(celltrek_obj, trim_graph = T, max_distance = 800, obj_type = 'CellTrek')
+MakeCellTrekDelaunayGraph = function (obj, trim_graph = T, max_distance = 800, obj_type = c('CellTrek','ST')) 
+{
+    # Choose type
+    obj_type = match.arg(obj_type)
+    message(paste('Using', obj_type, 'mode.'))
+    # Get coord
+    coord_df <- if(obj_type == 'CellTrek') obj@meta.data[, c("coord_x", "coord_y")] else GetTissueCoordinates(obj)
+    coord_df = coord_df %>% setNames(c("x", "y"))
     obj_trimesh = tri.mesh(coord_df)
-    obj_neighbor = neighbours(obj_trimesh) # Get neighbor list
-    
-    # Turn into ids and adjacency matrix
-    obj_adjmtx_list = obj_neighbor %>% setNames(rownames(obj@meta.data)) 
-    # Make Graph
-    obj_graph = graph_from_adj_list(
-        adjlist =  obj_adjmtx_list, mode = 'all'
-    )
-    # Trim graph based on max distance
-    if(trim_graph) obj_graph = TrimDelaunayGraph(obj_graph, coord_df, max_distance)
-    
+    obj_neighbor = neighbours(obj_trimesh)
+    obj_adjmtx_list = obj_neighbor %>% setNames(rownames(obj@meta.data))
+    obj_graph = graph_from_adj_list(adjlist = obj_adjmtx_list, 
+        mode = "all")
+    if (trim_graph) 
+        obj_graph = TrimDelaunayGraph(obj_graph, coord_df, max_distance)
     return(obj_graph)
 }
 
@@ -118,62 +129,62 @@ MakeCellNeighborhoodRatioPlot = function(obj, obj_graph, n_order = 1, cell_colum
 #                 palette = col_cell_type, vertex.size = 1.5)
 ##############################
 ## This is deprecating --------
-MakeDelaunayPlot = function(obj, cell_column, palette, cell_plot, flip_x=F, flip_y=T,
-                            vertex.size = 1.2, edge.color = 'gray80',...){
-    if(missing(cell_plot)) cell_plot = obj@meta.data[[cell_column]] %>% unique # plot all 
-    # Select data
-    meta_selected = obj@meta.data %>% filter(.data[[cell_column]] %in% cell_plot)
-    cell_ids      = meta_selected %>% rownames()
-    # Adjust coordinate. Since xy switch by default. flip_y -> -coord_y
-    if(flip_x) meta_selected$coord_y = -meta_selected$coord_y
-    if(flip_y) meta_selected$coord_x = -meta_selected$coord_x
-    # Make Graphobj
-    plt_graph  = MakeCellTrekDelaunayGraph(obj[,cell_ids])
-    # Color
-    if(missing(palette)){ 
-        palette = ExtendColorVector(color_vector = '', 
-                                    target_class = obj@meta.data[[cell_column]])}
-    color_cell_type = palette[ meta_selected[[cell_column]] ]
-    # Set color
-    V(plt_graph)$color = color_cell_type
-    # Set layout
-    plt_layout = meta_selected[cell_ids,c('coord_y','coord_x')] %>% as.matrix()
-    # Plot
-    plot(plt_graph, vertex.label =NA, vertex.size = vertex.size, 
-         vertex.frame.color=NA, edge.color = 'gray80', layout = plt_layout, ...)
-}
+# MakeDelaunayPlot = function(obj, cell_column, palette, cell_plot, flip_x=F, flip_y=T,
+#                             vertex.size = 1.2, edge.color = 'gray80',...){
+#     if(missing(cell_plot)) cell_plot = obj@meta.data[[cell_column]] %>% unique # plot all 
+#     # Select data
+#     meta_selected = obj@meta.data %>% filter(.data[[cell_column]] %in% cell_plot)
+#     cell_ids      = meta_selected %>% rownames()
+#     # Adjust coordinate. Since xy switch by default. flip_y -> -coord_y
+#     if(flip_x) meta_selected$coord_y = -meta_selected$coord_y
+#     if(flip_y) meta_selected$coord_x = -meta_selected$coord_x
+#     # Make Graphobj
+#     plt_graph  = MakeCellTrekDelaunayGraph(obj[,cell_ids])
+#     # Color
+#     if(missing(palette)){ 
+#         palette = ExtendColorVector(color_vector = '', 
+#                                     target_class = obj@meta.data[[cell_column]])}
+#     color_cell_type = palette[ meta_selected[[cell_column]] ]
+#     # Set color
+#     V(plt_graph)$color = color_cell_type
+#     # Set layout
+#     plt_layout = meta_selected[cell_ids,c('coord_y','coord_x')] %>% as.matrix()
+#     # Plot
+#     plot(plt_graph, vertex.label =NA, vertex.size = vertex.size, 
+#          vertex.frame.color=NA, edge.color = 'gray80', layout = plt_layout, ...)
+# }
 
 ##############################
 ## Simpler function to plot Delaunay obj - but uses PLOT instead of GGPLOT
 ## This is deprecating --------..
-PlotDelaunayGraph = function(obj, plt_graph, cell_column, palette, cell_plot, flip_x = F, flip_y = T, 
-    vertex.size = 1.2, edge.color = "gray80", ...) 
-{
-    if (missing(cell_plot)) 
-        cell_plot = obj@meta.data[[cell_column]] %>% unique
-    meta_selected = obj@meta.data %>% filter(.data[[cell_column]] %in% 
-        cell_plot)
-    cell_ids = meta_selected %>% rownames()
-    if (flip_x) 
-        meta_selected$coord_y = -meta_selected$coord_y
-    if (flip_y) 
-        meta_selected$coord_x = -meta_selected$coord_x
+# PlotDelaunayGraph = function(obj, plt_graph, cell_column, palette, cell_plot, flip_x = F, flip_y = T, 
+#     vertex.size = 1.2, edge.color = "gray80", ...) 
+# {
+#     if (missing(cell_plot)) 
+#         cell_plot = obj@meta.data[[cell_column]] %>% unique
+#     meta_selected = obj@meta.data %>% filter(.data[[cell_column]] %in% 
+#         cell_plot)
+#     cell_ids = meta_selected %>% rownames()
+#     if (flip_x) 
+#         meta_selected$coord_y = -meta_selected$coord_y
+#     if (flip_y) 
+#         meta_selected$coord_x = -meta_selected$coord_x
     
-    if (missing(palette)) {
-        palette = ExtendColorVector(color_vector = "", target_class = obj@meta.data[[cell_column]])
-    }
-    color_cell_type = palette[meta_selected[[cell_column]]]
-    V(plt_graph)$color = color_cell_type
+#     if (missing(palette)) {
+#         palette = ExtendColorVector(color_vector = "", target_class = obj@meta.data[[cell_column]])
+#     }
+#     color_cell_type = palette[meta_selected[[cell_column]]]
+#     V(plt_graph)$color = color_cell_type
     
-    # Set up layout for plt
-    plt_layout = meta_selected[cell_ids, c("coord_y", "coord_x")] %>% 
-        as.matrix()
+#     # Set up layout for plt
+#     plt_layout = meta_selected[cell_ids, c("coord_y", "coord_x")] %>% 
+#         as.matrix()
     
-    # Plot
-    plot(plt_graph, vertex.label = NA, vertex.size = vertex.size, 
-        vertex.frame.color = NA, edge.color = "gray80", layout = plt_layout, 
-        ...)
-}
+#     # Plot
+#     plot(plt_graph, vertex.label = NA, vertex.size = vertex.size, 
+#         vertex.frame.color = NA, edge.color = "gray80", layout = plt_layout, 
+#         ...)
+# }
 ##############################
 ## 5/17/2022
 ## Simpler function to plot Delaunay obj use GGPLOT version
@@ -185,41 +196,41 @@ PlotDelaunayGraph = function(obj, plt_graph, cell_column, palette, cell_plot, fl
 # PlotDelaunayGraphGG(obj, obj_graph, cell_column = cell_column, palette = col_cell_type)
 ##############################
 
-PlotDelaunayGraphGG = function(obj, plt_graph, cell_column, palette, cell_plot, flip_x = F, flip_y = T, 
-    title_size = 15, segment_size = 0.2, pt_size = 0.7, 
-    vertex.size = 1.2, edge.color = "gray80", ...) 
-{
-    if (missing(cell_plot)) 
-        cell_plot = obj@meta.data[[cell_column]] %>% unique
-    meta_selected = obj@meta.data %>% filter(.data[[cell_column]] %in% cell_plot)
-    cell_ids = meta_selected %>% rownames()
-    if (flip_x) 
-        meta_selected$coord_y = -meta_selected$coord_y
-    if (flip_y) 
-        meta_selected$coord_x = -meta_selected$coord_x
+# PlotDelaunayGraphGG = function(obj, plt_graph, cell_column, palette, cell_plot, flip_x = F, flip_y = T, 
+#     title_size = 15, segment_size = 0.2, pt_size = 0.7, 
+#     vertex.size = 1.2, edge.color = "gray80", ...) 
+# {
+#     if (missing(cell_plot)) 
+#         cell_plot = obj@meta.data[[cell_column]] %>% unique
+#     meta_selected = obj@meta.data %>% filter(.data[[cell_column]] %in% cell_plot)
+#     cell_ids = meta_selected %>% rownames()
+#     if (flip_x) 
+#         meta_selected$coord_y = -meta_selected$coord_y
+#     if (flip_y) 
+#         meta_selected$coord_x = -meta_selected$coord_x
     
-    if (missing(palette)) {
-        palette = ExtendColorVector(color_vector = "", target_class = obj@meta.data[[cell_column]])
-    }
-    color_cell_type = palette[meta_selected[[cell_column]]]
-    V(plt_graph)$color = color_cell_type
+#     if (missing(palette)) {
+#         palette = ExtendColorVector(color_vector = "", target_class = obj@meta.data[[cell_column]])
+#     }
+#     color_cell_type = palette[meta_selected[[cell_column]]]
+#     V(plt_graph)$color = color_cell_type
     
-    # Set up layout for plt
-    plt_layout = meta_selected[cell_ids, c("coord_y", "coord_x")]  %>% setNames(c('x','y'))
+#     # Set up layout for plt
+#     plt_layout = meta_selected[cell_ids, c("coord_y", "coord_x")]  %>% setNames(c('x','y'))
     
-    # Get Edge/segment df
-    edge_df = GetDelaunayEdgeDistanceTable(plt_graph, plt_layout)
+#     # Get Edge/segment df
+#     edge_df = GetDelaunayEdgeDistanceTable(plt_graph, plt_layout)
 
-    # Plot
+#     # Plot
     
-    ggplot() + 
-        geom_segment(data = edge_df, aes(x = x1, y= y1, xend = x2, yend = y2), size = segment_size, color = 'gray60') + 
-        geom_point(  data = meta_selected, aes(x = coord_y, y = coord_x, color = .data[[cell_column]]), size = pt_size) + 
-        scale_color_manual(values = color_cell_type) + 
-        labs(title = 'Delaunay Triangulation Graph') + 
-        theme_void() + 
-        theme(aspect.ratio = 1, plot.title  = element_text(size = title_size, face = 'bold', hjust = 0.5)) 
-}
+#     ggplot() + 
+#         geom_segment(data = edge_df, aes(x = x1, y= y1, xend = x2, yend = y2), size = segment_size, color = 'gray60') + 
+#         geom_point(  data = meta_selected, aes(x = coord_y, y = coord_x, color = .data[[cell_column]]), size = pt_size) + 
+#         scale_color_manual(values = color_cell_type) + 
+#         labs(title = 'Delaunay Triangulation Graph') + 
+#         theme_void() + 
+#         theme(aspect.ratio = 1, plot.title  = element_text(size = title_size, face = 'bold', hjust = 0.5)) 
+# }
 
 
 

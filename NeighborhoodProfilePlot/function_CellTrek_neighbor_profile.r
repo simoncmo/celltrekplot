@@ -125,9 +125,9 @@ ReorderProfilePlotByCellRatio = function(p_profile){
 ## To show DMG cell location/neighboring cells
 
 library(patchwork)
-######### API #########################
-# Step 1 Get neighborhood table
-GetNeighborCellTypeTable = function(obj, graph_obj, cell_column){
+######### INTERNAL ####################
+## Get Connection table. Origin = Cell1 id, Neighbor = Cell2 id, Connect column just mean these 2 point connect
+GetConnectionTable = function(obj, graph_obj){
     ########################
     # Extract Neighboring cells
     ########################
@@ -139,7 +139,18 @@ GetNeighborCellTypeTable = function(obj, graph_obj, cell_column){
     connection_df = data.frame(
                Origin        = cell_ids[summ$i],
                Neighbor      = cell_ids[summ$j],
-               Connect       = ifelse(summ$x==1,T,F))
+               Connect       = ifelse(summ$x==1,T,F)) # will all be true. i is cell1, j is cell2
+    connection_df
+}
+#GetConnectionTable(ST, st_graph) 
+
+######### API #########################
+# Step 1 Get neighborhood table
+GetNeighborCellTypeTable = function(obj, graph_obj, cell_column){
+    ########################
+    # Extract Neighboring cells
+    ########################
+    connection_df = GetConnectionTable(obj, graph_obj)
 
     ########################
     # Get Cell Type count and percentage
