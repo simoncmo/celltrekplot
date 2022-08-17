@@ -64,3 +64,44 @@ GetEdgeInteractionType = function(edge_celltype_table, cell_group = c('Tumor'), 
     rowwise() %>% 
     mutate(Edge_group = str_c(sort(c(cell1_celltype_group, cell2_celltype_group)), collapse="-"))
 }
+
+
+########### PLOT Function
+#### Edge based plot
+### [API] This function make Delaunay graph and color each edge by either node ('cell1' or 'cell2')
+EdgePlotByCell = function(plot_info_obj, color_edge_by = c('cell1','cell2'), segment_size= 0.5, title_size=20, plt_title = '',
+                                 highlight_neighbor = F, background_edge_color = 'gray70'){
+    # Parameters
+    cell_column = plot_info_obj$Parameters$cell_column
+    palette_celltype = plot_info_obj$Palettes$palette_celltype
+    # Celltype
+    celltypes = plot_info_obj$meta_selected[[cell_column]]
+    # Edge
+    Color_edge_table = plot_info_obj$Edge_table %>% 
+        mutate(Celltype1 = celltypes[from_idx], Celltype2 = celltypes[to_idx])
+    # Choose Cell1 or Cell2 to color edges
+    color_edge_by = match.arg(color_edge_by)
+    color_column = if(color_edge_by == 'cell1') 'Celltype1' else 'Celltype2'
+        
+    # Highlight Neighbor (Turn everything else gray)
+    background_cells = if(highlight_neighbor) plot_info_obj$Background_table %>% rownames else ''
+    Color_edge_table = Color_edge_table %>% mutate({{ color_column }} := ifelse(.data[[color_edge_by]] %in% background_cells, 
+                                                                               'background',
+                                                                                .data[[color_column]]
+                                                                               ))
+    
+    palette_use = c(palette_celltype, 'background' = background_edge_color)
+    # Plot
+    p = ggplot()
+
+    p = p + geom_segment(data = Color_edge_table, 
+                         aes(x = x1, y = y1, xend = x2, yend = y2, 
+                             color = .data[[color_column]] ), 
+                         size = segment_size)
+    p + scale_fill_manual(values = palette_celltype) + 
+        scale_color_manual(values = palette_use) + 
+        labs(title = plt_title) + 
+    theme_void()+
+
+        theme(aspect.ratio = 1, plot.title = element_text(size = title_size, face = "bold", hjust = 0.5))
+}
