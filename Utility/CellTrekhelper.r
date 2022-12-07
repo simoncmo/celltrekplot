@@ -45,19 +45,13 @@ RemoveScRNANotInCellTrek = function(scRNA_obj, CellTrek_obj){
 ################################################################################
 
 ## This function Add SCT from sc/snRNA to cellTrek
-AddAssayToCellTrek = function(celltrek_obj, scRNA, assay ='SCT'){
-    # Rename scRNA
+AddAssayToCellTrek = function (celltrek_obj, scRNA, assay = "SCT") 
+{
     sc_new = RenameCells(scRNA, new.names = make.names(colnames(scRNA)))
-    
-    # Get meta from cell trek
     celltrek_meta = celltrek_obj@meta.data
-    
-    # SCT for celltrek
-    celltrek_assay = sc_new@assays[[assay]]@data %>% .[,celltrek_meta$id_raw] # Get Assay 
-    colnames(celltrek_assay) = celltrek_meta$id_new # Assign new name
-    celltrek_obj[[assay]] = CreateAssayObject(celltrek_assay) # Add assay to CellTrek
-    
-    # Return
+    celltrek_assay = sc_new@assays[[assay]]@data %>% .[, celltrek_meta$id_new]
+    colnames(celltrek_assay) = celltrek_meta$id_new
+    celltrek_obj[[assay]] = CreateAssayObject(celltrek_assay)
     DefaultAssay(celltrek_obj) = assay
     celltrek_obj
 }
