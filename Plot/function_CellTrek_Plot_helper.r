@@ -14,7 +14,7 @@ CellTrekPlot = function(data_df, group.by, coord_cols, pt_size = 1, label=T, lab
         cowplot::theme_cowplot()+
         theme(aspect.ratio = 1)
     # enlarge legend dotsize. Current doesn't support changing size here
-    p = p + guides(color = guide_legend(override.aes = list(size = 5))
+    p = p + guides(color = guide_legend(override.aes = list(size = 5)))
     # label
     if(!label) p else p + geom_text(data = text_df, aes(x = .data[[coord_x]], y =.data[[coord_y]], 
                                       label = .data[[group.by]]), color = label_col, size = label_size)
