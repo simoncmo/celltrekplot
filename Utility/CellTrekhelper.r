@@ -48,9 +48,11 @@ RemoveScRNANotInCellTrek = function(scRNA_obj, CellTrek_obj){
 AddAssayToCellTrek = function (celltrek_obj, scRNA, assay = "SCT") 
 {
     sc_new = RenameCells(scRNA, new.names = make.names(colnames(scRNA)))
+    # create celltrek id without tailing .1 to .9
+    celltrek_id_new_notail = colnames(celltrek_obj) %>% str_remove('\\.[0-9]$')
     celltrek_meta = celltrek_obj@meta.data
-    celltrek_assay = sc_new@assays[[assay]]@data %>% .[, celltrek_meta$id_new]
-    colnames(celltrek_assay) = celltrek_meta$id_new
+    celltrek_assay = sc_new@assays[[assay]]@data %>% .[, celltrek_id_new_notail] # this will allow same cell name to duplicate
+    colnames(celltrek_assay) = celltrek_meta$id_new # rename to celltrek id
     celltrek_obj[[assay]] = CreateAssayObject(celltrek_assay)
     DefaultAssay(celltrek_obj) = assay
     celltrek_obj
